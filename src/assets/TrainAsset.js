@@ -3,46 +3,50 @@ import { getHTMLTrainIcon } from './TrainIcon';
 import { TrainTooltip } from './TrainTooltip';
 
 export class TrainAsset extends BaseAsset {
-    constructor(args) {
-        super(args);
-        const data = args.data;
+  constructor(args) {
+    super(args);
+    const data = args.data;
 
-        this.assetCanMove = true;
-        this.assetCanSelect = true;
-        this.assetSelected = false;
+    this.assetCanMove = true;
+    this.assetCanSelect = true;
+    this.assetSelected = false;
 
-        this.html = getHTMLTrainIcon(data, { angle: 20 });
-        this.eventTrainDom();
+    this.html = getHTMLTrainIcon(data, { angle: 20 });
+    this.eventTrainDom();
+    this.createTooltip();
+  }
 
+  eventTrainDom() {
+    this.addListener('click', () => {
+      console.log('clickkkk');
+      this.openTooltip();
 
-    }
+    });
+    this.addListener('mouseenter', () => {
+      console.log('mouseenter');
+    //   this.openTooltip();
+    });
+    this.addListener('mouseout', () => {
+      console.log('mouseout');
+    //   this.closeTooltip();
+    });
+  }
 
-    eventTrainDom() {
-        this.addListener('click', () => {
-            console.log('clickkkk')
-        })
-        this.addListener('mouseenter', () => {
-            console.log('mouseenter');
+  createTooltip() {
+    this.tooltip = new TrainTooltip({
+      marker: this,
+      content: 'Your snazzy content.',
+      data: {
+        list: [{ name: 'abc', value: 'okokok123' }]
+      }
+    });
+  }
 
-            this.openTooltip();
-        })
-        this.addListener('mouseout', () => {
-            console.log('mouseout')
-            this.closeTooltip();
-        })
-    }
+  openTooltip() {
+    this.tooltip.open();
+  }
 
-    createTooltip() {
-        const data = { assetName: 'ABC', list: [] }
-        this.tooltip = new TrainTooltip(data);
-    }
-
-    openTooltip() {
-        this.createTooltip();
-        this.tooltip.open()
-    }
-
-    closeTooltip() {
-        // this.tooltip.close()
-    }
+  closeTooltip() {
+    this.tooltip.close();
+  }
 }

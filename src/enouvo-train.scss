@@ -15,6 +15,15 @@ body {
     border-radius: 50%;
     width: 46px;
     height: 46px;
+    transform: translate(-50%, -100%);
+    display: flex;
+    position: absolute;
+    align-items: center;
+    cursor: default;
+    margin-top: 23px;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    flex-direction: column;
 
     .enouvo-trains-train-asset-om {
         box-sizing: border-box;
@@ -119,8 +128,6 @@ body {
     }
 }
 
-
-
 .enouvo-trains-station-asset {
 
     box-sizing: border-box;
@@ -168,6 +175,106 @@ body {
         .enouvo-trains-station-asset-name {
             font-size: 1.25em;
             top: -34px;
+        }
+    }
+}
+
+
+/* Tooltip*/
+
+.enouvo-trains-tooltip {
+    box-sizing: border-box;
+    position: absolute;
+    width: 100%;
+
+    * {
+        box-sizing: border-box;
+    }
+
+    &-inner {
+
+        display: flex;
+        position: absolute;
+        align-items: center;
+        cursor: default;
+
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        flex-direction: column;
+        margin-top: -58px;
+        margin-left: 0;
+        transform: translate(-50%, -100%);
+    }
+
+}
+
+.train-info {
+    width: 270px;
+
+    &-head {
+        background-color: #3949ab;
+        padding: 16px 16px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        color: #ffffff;
+
+        &-value {
+            font-size: 1.12rem;
+        }
+    }
+
+    &-body {
+        background-color: #ffffff;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    &-arrow {
+        width: 40px;
+        height: 20px;
+        position: absolute;
+        left: 50%;
+        margin-left: -20px;
+        overflow: hidden;
+
+        &-inner {
+            background-color: #ffffff;
+            width: 17px;
+            height: 17px;
+            padding: 1px;
+            margin: -10px auto 0;
+            -webkit-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+    }
+
+    &-list {
+        margin: 0;
+        padding: 16px 16px;
+        list-style: none;
+
+        &-item {
+            width: 100%;
+            margin-bottom: 8px;
+
+            &-name {
+                width: 40%;
+                display: inline-block;
+                color: #6f7bc6;
+                font-size: 1rem;
+                font-weight: 300;
+                cursor: pointer;
+            }
+
+            &-value {
+                width: 60%;
+                display: inline-block;
+                text-align: right;
+                font-weight: 500;
+                font-size: 0.88rem;
+            }
         }
     }
 }
