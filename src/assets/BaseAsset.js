@@ -5,6 +5,8 @@ export class BaseAsset extends google.maps.OverlayView {
     super();
     this.latlng = args.latlng;
     this.html = args.html;
+    this.properties = args.properties;
+
     this.setMap(args.map);
 
     this.poolListener = [];
