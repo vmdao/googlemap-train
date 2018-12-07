@@ -1,5 +1,6 @@
 import { TrainAsset, StationAsset, RouteAsset } from './assets';
-import { ZoomControlLayer, GroupControlLayer } from './layers';
+import { ControlLayer, ZoomControl, GroupControl } from './layers';
+import { EventEmitter } from './libs/EventEmitter';
 
 var polyLineColor = '#949c30';
 var polyLineWeight = 6;
@@ -11,40 +12,87 @@ var lineAndNetworkLineWeight = 10;
 var lineAndNetworkLineStrokeOpacity = 0.5;
 
 export class EnouvoTrain {
-  constructor(map) {
-    if (!map) {
+  constructor(args) {
+    if (!args.map) {
       throw new Error('Google map not exist');
     }
-
+    this._prefix_event = 'human_';
     this._map = map;
+    this._events = args.events;
     this._poolLines = [];
     this._poolTrains = [];
     this._poolStations = [];
-
+    this._observers = new EventEmitter();
     this.setupInit();
   }
-
   setupInit() {
-    this.setupMap();
-    this.setupZoom();
-    this.setupControl();
+    this._setupMap();
+    this._setupZoom();
+    this._setupControl();
+    this._addEventObserver(this._events);
   }
 
-  setupMap() {}
+  _trigger(event, data) {
+    this._observers.emitEvent(this._prefix_event + event, [data]);
+  }
 
-  setupZoom() {
-    const zoomControl = new ZoomControlLayer({ map: this._map, position: 10 });
-    zoomControl.setup();
-    const groupControl = new GroupControlLayer({
-      map: this._map,
-      position: 10
+  _addEventObserver(events) {
+    if (typeof events !== 'object') {
+      return;
+    }
+    this._observers.addListeners(events);
+  }
+
+  _setupMap() {}
+
+  _setupZoom() {
+    const groupControlEvents = {
+      control_group_click: message => {
+        console.log('groupControlEvents', message);
+      }
+    };
+
+    const zoomControlEvents = {
+      control_zoom_click: message => {
+        if (!message.event === 'clicked') {
+          return;
+        }
+        if (message.data === 'ZOOM_IN') {
+          this._map.setZoom(this._map.getZoom() + 1);
+        } else {
+          this._map.setZoom(this._map.getZoom() - 1);
+        }
+      }
+    };
+
+    const groupControl = new GroupControl({
+      observers: this._observers,
+      events: groupControlEvents
     });
-    groupControl.setup();
+
+    const zoomControl = new ZoomControl({
+      observers: this._observers,
+      events: zoomControlEvents
+    });
+
+    const controlLayer = new ControlLayer({ map: this._map, position: 10 });
+
+    controlLayer.addControl(groupControl);
+    controlLayer.addControl(zoomControl);
+
+    controlLayer.addTo(this._map);
   }
 
-  setupControl() {}
+  _setupControl() {}
 
   createTrainsInit(newDataTrains) {
+    this._observeTrain = {
+      train_asset_click: message => {
+        console.log('eventsTrain', message);
+        this._trigger('train', message);
+      }
+    };
+
     this.destroyTrains(this._poolTrains);
     this._poolTrains = this.createTrains(newDataTrains);
   }
@@ -71,7 +119,9 @@ export class EnouvoTrain {
     const train = new TrainAsset({
       map: this._map,
       latlng: latlng,
-      properties: dataTrain.data
+      properties: dataTrain.data,
+      observers: this._observers,
+      events: this._observeTrain
     });
 
     return train;

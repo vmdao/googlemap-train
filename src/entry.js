@@ -19,7 +19,7 @@ function initialize() {
 
   var mapLatLng = new google.maps.LatLng(-31.9546781, 115.852662);
   var mapOptions = {
-    zoom: 15,
+    zoom: 14,
     center: mapLatLng,
     disableDefaultUI: true,
     styles: styleMap
@@ -28,7 +28,14 @@ function initialize() {
   var map = new google.maps.Map(document.getElementById('map'), mapOptions);
   map.setOptions({ styles: styleMap });
 
-  const enouvoTrain = new EnouvoTrain(map);
+  const eventsMap = {
+    human_train: function(message) {
+      console.log(message);
+    }
+  };
+
+  const enouvoTrain = new EnouvoTrain({ map: map, events: eventsMap });
+
   const dataTrains = [
     {
       latlng: { lat: -31.9546781, lng: 115.852662 },
@@ -52,8 +59,8 @@ function initialize() {
       }
     }
   ];
-
   const dataLines = [{ data: { abc: 123 } }];
+
   enouvoTrain.createTrainsInit(dataTrains);
   enouvoTrain.createLinesInit(dataLines);
 }

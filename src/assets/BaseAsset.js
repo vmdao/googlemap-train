@@ -1,94 +1,74 @@
 import { EventEmitter } from '../libs/EventEmitter';
+import { getNewElement, addClass, removeClass } from '../libs';
 
 export class BaseAsset extends google.maps.OverlayView {
   constructor(args) {
     super();
+    this._prefix_event = 'asset_';
+    this._observers = args.observers;
+    this._events = args.events;
     this.latlng = args.latlng;
+    this._html = null;
     this.html = args.html;
     this.properties = args.properties;
-
-    this.setMap(args.map);
-
-    this.poolListener = [];
 
     this.assetCanMove = false;
     this.assetCanSelect = false;
     this.assetSelected = false;
-
-    this._createObserver();
+    this.setMap(args.map);
   }
 
-  _createObserver() {
-    this.assetObserver = new EventEmitter();
-
-    const events = {
-      toggle: () => {
-        this.toggleSelect();
-      },
-
-      selected: () => {
-        this.doSelect();
-      },
-
-      unSelected: () => {
-        this.doDeselect();
-      }
-    };
-
-    this.assetObserver.addListeners(events);
+  onAdd() {
+    this._createDiv();
+    this._setup();
+    this._addEventsDom();
+    this._addEventObserver(this._events);
   }
 
-  createDiv() {
-    this.div = document.createElement('div');
-    this.div.className = 'enouvo-marker';
-
-    this.div.style.position = 'absolute';
-    this.div.style.cursor = 'pointer';
-    if (this.html) {
-      this.div.innerHTML = this.html;
-    }
-    this.eventDom();
-  }
-
-  eventDom() {
-    google.maps.event.addDomListener(this.div, 'click', event => {
-      google.maps.event.trigger(this, 'click');
-    });
-
-    google.maps.event.addDomListener(this.div, 'mouseenter', event => {
-      google.maps.event.trigger(this, 'mouseenter');
-    });
-
-    google.maps.event.addDomListener(this.div, 'mouseout', event => {
-      google.maps.event.trigger(this, 'mouseout');
-    });
-  }
-
-  appendDivToOverlay() {
+  _setup() {
     const panes = this.getPanes();
-    panes.overlayImage.appendChild(this.div);
+    panes.overlayImage.appendChild(this._html.wrapper);
   }
 
-  positionDiv() {
+  _positionDiv() {
     const point = this.getProjection().fromLatLngToDivPixel(this.latlng);
     if (point) {
-      this.div.style.left = `${point.x}px`;
-      this.div.style.top = `${point.y}px`;
+      this._html.wrapper.style.left = `${point.x}px`;
+      this._html.wrapper.style.top = `${point.y}px`;
     }
   }
 
-  draw() {
-    if (!this.div) {
-      this.createDiv();
-      this.appendDivToOverlay();
+  _trigger(event, data) {
+    this._observers.emitEvent(this._prefix_event + event, [data]);
+  }
+
+  _addEventObserver(events) {
+    if (typeof events !== 'object') {
+      return;
     }
-    this.positionDiv();
+    this._observers.addListeners(events);
+  }
+
+  _createDiv() {
+    if (!this._html) {
+      this._html = {};
+    }
+    this._html.content = getNewElement({ html: this.html });
+    this._html.wrapper = getNewElement({ className: 'enouvo-trains-asset' });
+
+    this._html.wrapper.appendChild(this._html.content);
+  }
+
+  _addEventsDom() {}
+
+  draw() {
+    this._positionDiv();
   }
 
   remove() {
-    if (this.div) {
-      this.div.parentNode.removeChild(this.div);
-      this.div = null;
+    if (this._html.wrapper) {
+      this._html.wrapper.parentNode.removeChild(this._html.wrapper);
+      this._html.wrapper = null;
     }
   }
 
@@ -96,40 +76,37 @@ export class BaseAsset extends google.maps.OverlayView {
     return this.latlng;
   }
 
-  getDraggable() {
-    return false;
-  }
-
   isSeleted() {
     return this.assetSelected;
   }
 
-  action(message) {
-    this.assetObserver.emitEvent(message.action, [message.data]);
+  /* Event Human */
+  onClickToggleSelect() {
+    this._toggleSelected();
   }
 
-  toggleSelect() {
-    this.assetSelected = !this.assetSelected;
-    if (this.assetSelected) {
-      this.doSelectTemplate();
-    } else {
-      this.doDeselectTemplate();
-    }
-  }
-
-  doSelect() {
+  onDoSelect() {
     this.assetSelected = true;
-    this.doSelectTemplate();
+    this._onSelectedChangeTemplate();
   }
 
-  doDeselect() {
+  onDoDeselect() {
     this.assetSelected = false;
-    this.doDeselectTemplate();
+    this._onDeselectedChangeTemplate();
   }
 
-  doSelectTemplate() {
-    console.log('doSelectTemplate');
+  _toggleSelected() {
+    this.assetSelected = !this.assetSelected;
+    this.assetSelected
+      ? this._onSelectedChangeTemplate()
+      : this._onDeselectedChangeTemplate();
   }
 
-  doDeselectTemplate() {}
+  _onSelectedChangeTemplate() {
+    console.log('Base: _onSelectedChangeTemplate');
+  }
+
+  _onDeselectedChangeTemplate() {
+    console.log('Base: _onDeselectedChangeTemplate');
+  }
 }

@@ -5,13 +5,13 @@ export function getHTMLStationIcon(data) {
 function getHTML(data) {
     const imageUrl = 'assets/images/ic-marker-station.svg';
     var html =
-        '<div class="enouvo-trains-station-asset"' +
+        '<div class="station-asset"' +
         ' id="' +
         data.id +
         '"' +
-        '"><div class="enouvo-trains-station-asset-om-name">' +
+        '"><div class="station-asset-om-name">' +
         data.name +
-        '</div><img class="enouvo-trains-station-asset-om-img" src="' +
+        '</div><img class="station-asset-om-img" src="' +
         imageUrl +
         '"></div>';
 

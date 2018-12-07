@@ -18,26 +18,39 @@ TOP_CENTER: 2
 TOP_LEFT: 1
 TOP_RIGHT: 3
 */
+
 export * from './ControlLayer';
 export class ControlLayer {
   constructor(args) {
-    this._map = args.map;
-    this.position = args.position || 1;
+    console.log(args, 123);
+    this._position = args._position || 1;
     this._html = null;
+    this.register();
   }
 
-  setup() {
-    this.createLayer();
-    this.setupControl();
+  addTo(map) {
+    this._map = map;
+    this._setup();
   }
 
-  setupLayer() {
-    this.setupLayer();
+  register() {
+    this._draw();
   }
 
-  setupControl() {}
+  unregister() {
+    this._remove();
+  }
 
-  createLayer() {
+  addControl(control) {
+    control.register();
+    control.addTo(this);
+  }
+
+  _setup() {
+    this._map.controls[this._position].push(this._html.content);
+  }
+
+  _draw() {
     if (!this._html) {
       this._html = {};
     }
@@ -54,13 +67,18 @@ export class ControlLayer {
     };
 
     /* Div */
-    this._html.layer = getNewElement({
-      className:
-        'enouvo-trains-layer controllayer layer-postion' + this.position
+    this._html.content = getNewElement({
+      className: 'enouvo-trains-layer layer-postion' + this._position
     });
 
-    this._html.layer.style.zIndex = 1;
+    this._html.content.style.zIndex = 1;
+  }
 
-    this._map.controls[this.position].push(this._html.layer);
+  _remove() {
+    if (this._html) {
+      this._html.wrapper &&
+        this._html.wrapper.parentNode.removeChild(this._html.wrapper);
+      this._html.wrapper = null;
+    }
   }
 }

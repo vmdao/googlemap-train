@@ -1,48 +1,57 @@
 import { BaseAsset } from './BaseAsset';
 import { getHTMLTrainIcon } from './TrainIcon';
 import { TrainTooltip } from './TrainTooltip';
+import { addClass, removeClass } from '../libs';
 
 export class TrainAsset extends BaseAsset {
   constructor(args) {
     super(args);
-    this.properties = args.properties;
-
+    this._prefix_event = 'train_asset_';
     this.assetCanMove = true;
     this.assetCanSelect = true;
     this.assetSelected = false;
-
     this.html = getHTMLTrainIcon(this.properties, { angle: 20 });
-    this.eventTrainDom();
-    this.createTooltip();
+
+    this._createTooltip();
   }
 
-  eventTrainDom() {
-    this.addListener('click', () => {
-      console.log('clickkkk');
-      this.openTooltip();
+  _addEventsDom() {
+    this._html.content.addEventListener('click', event => {
+      this._toggleSelected();
+      this._trigger('click', {
+        event: 'clicked',
+        data: { type: 'train', value: this.properties }
+      });
     });
-    this.addListener('mouseenter', () => {
-      console.log('mouseenter');
-      //   this.openTooltip();
+
+    this._html.content.addEventListener('mouseenter', () => {
+      this._openTooltip();
     });
-    this.addListener('mouseout', () => {
-      console.log('mouseout');
-      //   this.closeTooltip();
+    this._html.content.addEventListener('mouseout', () => {
+      this._closeTooltip();
     });
   }
 
-  createTooltip() {
+  _createTooltip() {
     this.tooltip = new TrainTooltip({
       marker: this,
       properties: this.properties
     });
   }
 
-  openTooltip() {
+  _openTooltip() {
     this.tooltip.open();
   }
 
-  closeTooltip() {
+  _closeTooltip() {
     this.tooltip.close();
+  }
+
+  _onSelectedChangeTemplate() {
+    addClass(this._html.content, 'train-asset-selected');
+  }
+
+  _onDeselectedChangeTemplate() {
+    removeClass(this._html.content, 'train-asset-selected');
   }
 }
