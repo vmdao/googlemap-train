@@ -4,7 +4,7 @@ import { EventEmitter } from './libs/EventEmitter';
 
 const GOOGLE_MAP_API = google.maps;
 var polyLineColor = '#949c30';
-var polyLineWeight = 6;
+var polyLineWeight = 7;
 var polyLineStrokeOpacity = 1;
 
 // complete network with selected line
@@ -157,23 +157,15 @@ export class EnouvoTrain {
   }
 
   createLine(dataLine) {
-    const flightPlanCoordinates = [
-      { lat: -31.9546781, lng: 115.852662 },
-      { lat: 37.772, lng: -122.214 },
-      { lat: 21.291, lng: -157.821 },
-      { lat: -18.142, lng: 178.431 },
-      { lat: -27.467, lng: 153.027 }
-    ];
-
     const line = new RouteAsset({
       map: this._map,
-      properties: dataLine.data,
       options: {
         path: flightPlanCoordinates,
         strokeColor: polyLineColor,
         strokeOpacity: polyLineStrokeOpacity,
         strokeWeight: polyLineWeight
       },
+      properties: dataLine.data,
       observers: this._observers,
       events: this._observeLine
     });
