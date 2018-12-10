@@ -1,5 +1,5 @@
 import { BaseControl } from './BaseControl';
-import { getNewElement } from '../libs';
+import { getNewElement } from '../utils';
 
 export class ZoomControl extends BaseControl {
   constructor(args) {

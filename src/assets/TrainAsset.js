@@ -1,7 +1,7 @@
 import { BaseAsset } from './BaseAsset';
 import { getHTMLTrainIcon } from './TrainIcon';
 import { TrainTooltip } from './TrainTooltip';
-import { addClass, removeClass } from '../libs';
+import { addClass, removeClass } from '../utils';
 
 export class TrainAsset extends BaseAsset {
   constructor(args) {

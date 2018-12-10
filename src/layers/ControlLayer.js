@@ -19,7 +19,7 @@ TOP_LEFT: 1
 TOP_RIGHT: 3
 */
 
-import { getNewElement } from '../libs';
+import { getNewElement } from '../utils';
 
 export class ControlLayer {
   constructor(args) {

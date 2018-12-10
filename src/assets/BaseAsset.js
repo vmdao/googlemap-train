@@ -1,4 +1,4 @@
-import { getNewElement, GOOGLE_MAP_API } from '../libs';
+import { getNewElement, GOOGLE_MAP_API } from '../utils';
 
 export class BaseAsset extends GOOGLE_MAP_API.OverlayView {
   constructor(args) {

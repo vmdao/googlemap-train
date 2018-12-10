@@ -1,4 +1,4 @@
-import { GOOGLE_MAP_API } from '../libs';
+import { GOOGLE_MAP_API } from '../utils';
 
 export class RouteAsset extends GOOGLE_MAP_API.Polyline {
   constructor(args) {

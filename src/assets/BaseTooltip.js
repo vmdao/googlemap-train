@@ -1,6 +1,4 @@
-// Set the html of a container. Should support both raw text and a single
-// DOM Element.
-import { toLatLng, setHTML, GOOGLE_MAP_API } from '../libs';
+import { toLatLng, setHTML, GOOGLE_MAP_API } from '../utils';
 
 export class BaseTooltip extends GOOGLE_MAP_API.OverlayView {
   constructor(opts) {

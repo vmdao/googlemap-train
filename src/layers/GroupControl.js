@@ -1,5 +1,5 @@
 import { BaseControl } from './BaseControl';
-import { getNewElement, addClass, removeClass } from '../libs';
+import { getNewElement, addClass, removeClass } from '../utils';
 export class GroupControl extends BaseControl {
   constructor(args) {
     super(args);

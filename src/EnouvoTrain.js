@@ -1,6 +1,6 @@
 import { TrainAsset, StationAsset, RouteAsset } from './assets';
 import { ControlLayer, ZoomControl, GroupControl } from './layers';
-import { EventEmitter, GOOGLE_MAP_API } from './libs';
+import { EventEmitter, GOOGLE_MAP_API } from './utils';
 
 const styleGoogleMap = {
   map: [
