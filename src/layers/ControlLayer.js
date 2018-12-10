@@ -20,10 +20,12 @@ TOP_RIGHT: 3
 */
 
 export * from './ControlLayer';
+import { getNewElement } from '../libs';
+
 export class ControlLayer {
   constructor(args) {
-    console.log(args, 123);
-    this._position = args._position || 1;
+    this._map = args.map || null;
+    this._position = args.position || 1;
     this._html = null;
     this.register();
   }
@@ -54,17 +56,6 @@ export class ControlLayer {
     if (!this._html) {
       this._html = {};
     }
-    /* Inner */
-    const getNewElement = args => {
-      const element = document.createElement('div');
-      if (args && args.className) {
-        element.className = args.className;
-      }
-      if (args && args.html) {
-        element.innerHTML = args.html;
-      }
-      return element;
-    };
 
     /* Div */
     this._html.content = getNewElement({

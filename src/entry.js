@@ -30,7 +30,13 @@ function initialize() {
 
   const eventsMap = {
     human_train: function(message) {
-      console.log(message);
+      console.log('human_train', message);
+    },
+    human_station: function(message) {
+      console.log('human_station', message);
+    },
+    human_line: function(message) {
+      console.log('human_line', message);
     }
   };
 
@@ -41,27 +47,37 @@ function initialize() {
       latlng: { lat: -31.9546781, lng: 115.852662 },
       data: {
         name: 'ABC123',
-        list: [{ name: 'TrainNo', value: 'abc456' }]
+        list: [{ name: 'TrainNo', value: 'ABC123' }]
       }
     },
     {
       latlng: { lat: -31.9546781, lng: 115.856662 },
       data: {
         name: 'ABC456',
-        list: [{ name: 'TrainNo', value: 'abc456' }]
-      }
-    },
-    {
-      latlng: { lat: -31.9546781, lng: 115.858662 },
-      data: {
-        name: 'ABC789',
-        list: [{ name: 'TrainNo', value: 'abc456' }]
+        list: [{ name: 'TrainNo', value: 'ABC456' }]
       }
     }
   ];
+
+  const dataStaions = [
+    {
+      latlng: { lat: -31.9546781, lng: 115.852662 },
+      data: {
+        name: 'Station 124'
+      }
+    },
+    {
+      latlng: { lat: -31.9546781, lng: 115.856662 },
+      data: {
+        name: 'Station 890'
+      }
+    }
+  ];
+
   const dataLines = [{ data: { abc: 123 } }];
 
   enouvoTrain.createTrainsInit(dataTrains);
+  enouvoTrain.createStationsInit(dataStaions);
   enouvoTrain.createLinesInit(dataLines);
 }
 

@@ -17,18 +17,225 @@ export class EnouvoTrain {
       throw new Error('Google map not exist');
     }
     this._prefix_event = 'human_';
-    this._map = map;
+    this._map = args.map;
     this._events = args.events;
     this._poolLines = [];
     this._poolTrains = [];
     this._poolStations = [];
     this._observers = new EventEmitter();
-    this.setupInit();
+
+    this._setup();
   }
-  setupInit() {
+
+  humanSelectTrains(dataTrains) {
+    const selectedTrains = this._filterTrains(dataTrains);
+    if (selectedTrains.length) {
+      selectedTrains.forEach(train => {
+        train.doSelect();
+      });
+    }
+  }
+
+  humanSelectStations(dataStations) {
+    const selectedStations = this._filterStations(dataStations);
+    if (selectedStations.length) {
+      selectedStations.forEach(station => {
+        station.doSelect();
+      });
+    }
+  }
+
+  humanSelectLines(dataLines) {
+    const selectedLines = this._filterLines(dataLines);
+    if (selectedLines.length) {
+      selectedLines.forEach(line => {
+        line.doSelect();
+      });
+    }
+  }
+
+  createTrainsInit(newDataTrains) {
+    this._destroyTrains(this._poolTrains);
+    this._poolTrains = this.createTrains(newDataTrains);
+  }
+
+  createTrains(newDataTrains) {
+    return newDataTrains.reduce((current, data) => {
+      try {
+        const train = this.createTrain(data);
+        current.push(train);
+      } catch (error) {}
+      return current;
+    }, []);
+  }
+
+  createTrain(dataTrain) {
+    const dataLatlng = dataTrain.latlng;
+    if (!dataLatlng) {
+      throw new Error('Station latlng not exist');
+    }
+
+    const latlng = new google.maps.LatLng(dataLatlng.lat, dataLatlng.lng);
+
+    const train = new TrainAsset({
+      map: this._map,
+      latlng: latlng,
+      properties: dataTrain.data,
+      observers: this._observers,
+      events: this._observeTrain
+    });
+
+    return train;
+  }
+
+  updateAndCreateTrain(dataTrain) {
+    const train = this._findTrains(dataTrain);
+
+    if (!train) {
+      this._poolTrains.push(this.createTrain(dataTrain));
+    } else {
+      train.updateData(dataTrain);
+    }
+  }
+
+  createStationsInit(newDataStations) {
+    this._destroyStations(this._poolStations);
+    this._poolStations = this.createStations(newDataStations);
+    console.log(this, newDataStations);
+  }
+
+  createStations(newDataStations) {
+    return newDataStations.reduce((current, data) => {
+      try {
+        const station = this.createStation(data);
+        current.push(station);
+      } catch (error) {
+        console.log(error);
+      }
+      return current;
+    }, []);
+  }
+
+  createStation(dataStation) {
+    const dataLatlng = dataStation.latlng;
+    if (!dataLatlng) {
+      throw new Error('Station latlng not exist');
+    }
+
+    const latlng = new google.maps.LatLng(dataLatlng.lat, dataLatlng.lng);
+
+    const station = new StationAsset({
+      map: this._map,
+      latlng: latlng,
+      properties: dataStation.data,
+      observers: this._observers,
+      events: this._observeStation
+    });
+
+    return station;
+  }
+
+  /*
+   * Line
+   */
+  createLinesInit(newDataLines) {
+    this._destroyLines(this._poolLines);
+    this._poolLines = this.createLines(newDataLines);
+  }
+
+  createLines(newDataLines) {
+    return newDataLines.reduce((current, data) => {
+      try {
+        const line = this.createLine(data);
+        current.push(line);
+      } catch (error) {}
+      return current;
+    }, []);
+  }
+
+  createLine(dataLine) {
+    const flightPlanCoordinates = [
+      { lat: -31.9546781, lng: 115.852662 },
+      { lat: 37.772, lng: -122.214 },
+      { lat: 21.291, lng: -157.821 },
+      { lat: -18.142, lng: 178.431 },
+      { lat: -27.467, lng: 153.027 }
+    ];
+
+    const line = new RouteAsset({
+      map: this._map,
+      properties: dataLine.data,
+      options: {
+        path: flightPlanCoordinates,
+        strokeColor: polyLineColor,
+        strokeOpacity: polyLineStrokeOpacity,
+        strokeWeight: polyLineWeight
+      },
+      observers: this._observers,
+      events: this._observeLine
+    });
+    return line;
+  }
+
+  /* Function Private */
+
+  _findTrain(dataTrain) {
+    return this._poolTrains.find(train => {
+      return (train.data.tdn = dataTrain.tdn);
+    });
+  }
+
+  _filterTrains(dataTrains) {
+    return dataTrains.filter(dataTrain => {
+      return this._findTrain(dataTrain);
+    });
+  }
+
+  _findStation(dataStation) {
+    return this._poolStations.find(station => {
+      return (station.data.id = dataStation.id);
+    });
+  }
+
+  _filterStations(dataStations) {
+    return dataStations.filter(dataStation => {
+      return this._findStation(dataStation);
+    });
+  }
+
+  _findLine(dataLine) {
+    return this._poolLines.find(line => {
+      return (line.properties.id = dataLine.id);
+    });
+  }
+
+  _filterLines(dataLines) {
+    return dataLines.filter(dataLine => {
+      return this._findLine(dataLine);
+    });
+  }
+
+  _destroyTrains(trains) {
+    trains.forEach(train => {
+      train.destroy();
+    });
+  }
+
+  _destroyLines(lines) {
+    lines.forEach(line => {
+      line.destroy();
+    });
+  }
+
+  _destroyStations(stations) {
+    stations.forEach(station => {
+      station.destroy();
+    });
+  }
+
+  _setup() {
     this._setupMap();
-    this._setupZoom();
-    this._setupControl();
+    this._setupControlLayer();
     this._addEventObserver(this._events);
   }
 
@@ -41,14 +248,45 @@ export class EnouvoTrain {
       return;
     }
     this._observers.addListeners(events);
+    this._observeTrain = {
+      train_asset_click: message => {
+        this._trigger('train', message);
+      }
+    };
+    this._observeStation = {
+      station_asset_click: message => {
+        this._trigger('station', message);
+      }
+    };
+    this._observeLine = {
+      line_asset_click: message => {
+        this._trigger('line', message);
+      }
+    };
   }
 
   _setupMap() {}
 
-  _setupZoom() {
+  _setupControlLayer() {
     const groupControlEvents = {
       control_group_click: message => {
-        console.log('groupControlEvents', message);
+        const { event, data } = message;
+        const { type, value } = data;
+        if (event === 'clicked') {
+          if (type === 'GROUP_TRAIN') {
+            this._poolTrains.forEach(train => {
+              value ? train.show() : train.hide();
+            });
+          } else if (type === 'GROUP_STATION') {
+            this._poolStations.forEach(train => {
+              value ? train.show() : train.hide();
+            });
+          } else if (type === 'GROUP_LINE') {
+            this._poolLines.forEach(train => {
+              value ? train.show() : train.hide();
+            });
+          }
+        }
       }
     };
 
@@ -74,162 +312,11 @@ export class EnouvoTrain {
       observers: this._observers,
       events: zoomControlEvents
     });
-
     const controlLayer = new ControlLayer({ map: this._map, position: 10 });
 
     controlLayer.addControl(groupControl);
     controlLayer.addControl(zoomControl);
 
     controlLayer.addTo(this._map);
-  }
-
-  _setupControl() {}
-
-  createTrainsInit(newDataTrains) {
-    this._observeTrain = {
-      train_asset_click: message => {
-        console.log('eventsTrain', message);
-        this._trigger('train', message);
-      }
-    };
-
-    this.destroyTrains(this._poolTrains);
-    this._poolTrains = this.createTrains(newDataTrains);
-  }
-
-  createTrains(newDataTrains) {
-    return newDataTrains.reduce((current, data) => {
-      try {
-        const train = this.createTrain(data);
-        return current.push(train);
-      } catch (error) {
-        return current;
-      }
-    }, []);
-  }
-
-  createTrain(dataTrain) {
-    const dataLatlng = dataTrain.latlng;
-    if (!dataLatlng) {
-      throw new Error('Station latlng not exist');
-    }
-
-    const latlng = new google.maps.LatLng(dataLatlng.lat, dataLatlng.lng);
-
-    const train = new TrainAsset({
-      map: this._map,
-      latlng: latlng,
-      properties: dataTrain.data,
-      observers: this._observers,
-      events: this._observeTrain
-    });
-
-    return train;
-  }
-
-  destroyTrains(trains) {
-    trains.forEach(train => {
-      train.destroy();
-    });
-  }
-
-  updateAndCreateTrain(dataTrain) {
-    const train = this._poolTrains.find(train => {
-      return (train.data.tdn = dataTrain.tdn);
-    });
-
-    if (!train) {
-      this._poolTrains.push(this.createTrain(dataTrain));
-    } else {
-      train.updateData(dataTrain);
-    }
-  }
-
-  createStationsInit(newDataTrains) {
-    this.destroyTrains(this._poolTrains);
-    this._poolTrains = this.createTrains(newDataTrains);
-  }
-
-  createStations(newDataStations) {
-    return newDataStations.reduce((current, data) => {
-      try {
-        const station = this.createStation(data);
-        return current.push(station);
-      } catch (error) {
-        return current;
-      }
-    }, []);
-  }
-
-  createStation(dataStation) {
-    const dataLatlng = dataStation.latlng;
-    if (!dataLatlng) {
-      throw new Error('Station latlng not exist');
-    }
-
-    const latlng = new google.maps.LatLng(dataLatlng.lat, dataLatlng.lng);
-
-    const marker = new StationAsset({
-      map: this._map,
-      latlng: latlng,
-      properties: dataStation.data
-    });
-
-    return marker;
-  }
-
-  destroyStations(stations) {
-    stations.forEach(station => {
-      station.destroy();
-    });
-  }
-
-  /*
-   * Line
-   */
-  createLinesInit(newDataLines) {
-    this.destroyLines(this._poolLines);
-    this._poolLines = this.createLines(newDataLines);
-  }
-
-  createLines(newDataLines) {
-    return newDataLines.reduce((current, data) => {
-      try {
-        const line = this.createLine(data);
-        return current.push(line);
-      } catch (error) {
-        console.log('error', error);
-        return current;
-      }
-    }, []);
-  }
-
-  createLine(dataLine) {
-    const flightPlanCoordinates = [
-      { lat: -31.9546781, lng: 115.852662 },
-      { lat: 37.772, lng: -122.214 },
-      { lat: 21.291, lng: -157.821 },
-      { lat: -18.142, lng: 178.431 },
-      { lat: -27.467, lng: 153.027 }
-    ];
-
-    const line = new RouteAsset({
-      map: this._map,
-      properties: dataLine.data,
-      options: {
-        path: flightPlanCoordinates,
-        strokeColor: polyLineColor,
-        strokeOpacity: polyLineStrokeOpacity,
-        strokeWeight: polyLineWeight
-      }
-    });
-    console.log('line', flightPlanCoordinates);
-    return line;
-  }
-
-  destroyLines(lines) {
-    lines.forEach(line => {
-      line.destroy();
-    });
   }
 }

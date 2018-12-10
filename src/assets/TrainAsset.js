@@ -10,6 +10,8 @@ export class TrainAsset extends BaseAsset {
     this.assetCanMove = true;
     this.assetCanSelect = true;
     this.assetSelected = false;
+    this._zIndex = 100;
+
     this.html = getHTMLTrainIcon(this.properties, { angle: 20 });
 
     this._createTooltip();

@@ -74,12 +74,12 @@ export class GroupControl extends BaseControl {
       this._onSelect(buttonLineDiv, this.lineSelected);
     });
 
-    this._onSelect(buttonTrainDiv, this.trainSelected);
-    this._onSelect(buttonLineDiv, this.lineSelected);
-    this._onSelect(buttonStationDiv, this.stationSelected);
+    this._drawBySelected(buttonTrainDiv, this.trainSelected);
+    this._drawBySelected(buttonLineDiv, this.lineSelected);
+    this._drawBySelected(buttonStationDiv, this.stationSelected);
   }
 
-  _onSelect(el, isSelected) {
+  _drawBySelected(el, isSelected) {
     if (!el) {
       return;
     }
@@ -88,5 +88,9 @@ export class GroupControl extends BaseControl {
     } else {
       removeClass(el, 'group-selected');
     }
+  }
+
+  _onSelect(el, isSelected) {
+    this._drawBySelected(el, isSelected);
   }
 }

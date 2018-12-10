@@ -1,5 +1,4 @@
-import { EventEmitter } from '../libs/EventEmitter';
-import { getNewElement, addClass, removeClass } from '../libs';
+import { getNewElement } from '../libs';
 
 export class BaseAsset extends google.maps.OverlayView {
   constructor(args) {
@@ -9,6 +8,8 @@ export class BaseAsset extends google.maps.OverlayView {
     this._events = args.events;
     this.latlng = args.latlng;
     this._html = null;
+    this._hide = args.hide || false;
+    this._zIndex = 1;
     this.html = args.html;
     this.properties = args.properties;
 
@@ -55,20 +56,39 @@ export class BaseAsset extends google.maps.OverlayView {
     }
     this._html.content = getNewElement({ html: this.html });
     this._html.wrapper = getNewElement({ className: 'enouvo-trains-asset' });
-
+    this._html.wrapper.style.zIndex = this._zIndex;
     this._html.wrapper.appendChild(this._html.content);
   }
 
   _addEventsDom() {}
 
+  _drawHide() {
+    this._html.wrapper.style.visibility = this._hide ? 'hidden' : 'visible';
+  }
+
   draw() {
     this._positionDiv();
   }
 
+  hide() {
+    this._hide = true;
+    this._drawHide();
+  }
+
+  show() {
+    this._hide = false;
+    this._drawHide();
+  }
+
+  destroy() {
+    this.remove();
+  }
+
   remove() {
-    if (this._html.wrapper) {
+    if (this._html && this._html.wrapper) {
       this._html.wrapper.parentNode.removeChild(this._html.wrapper);
       this._html.wrapper = null;
+      this._html.content = null;
     }
   }
 
@@ -85,12 +105,12 @@ export class BaseAsset extends google.maps.OverlayView {
     this._toggleSelected();
   }
 
-  onDoSelect() {
+  doSelect() {
     this.assetSelected = true;
     this._onSelectedChangeTemplate();
   }
 
-  onDoDeselect() {
+  doDeselect() {
     this.assetSelected = false;
     this._onDeselectedChangeTemplate();
   }
