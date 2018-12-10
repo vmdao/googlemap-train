@@ -270,16 +270,22 @@ export class EnouvoTrain {
       return;
     }
     this._observers.addListeners(events);
+
     this._observeTrain = {
       train_asset_click: message => {
         this._trigger('train', message);
+      },
+      train_asset_hover: message => {
+        this._trigger('train', message);
       }
     };
+
     this._observeStation = {
       station_asset_click: message => {
         this._trigger('station', message);
       }
     };
+
     this._observeLine = {
       line_asset_click: message => {
         this._trigger('line', message);
