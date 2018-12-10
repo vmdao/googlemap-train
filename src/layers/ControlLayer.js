@@ -19,7 +19,6 @@ TOP_LEFT: 1
 TOP_RIGHT: 3
 */
 
-export * from './ControlLayer';
 import { getNewElement } from '../libs';
 
 export class ControlLayer {

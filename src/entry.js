@@ -1,32 +1,12 @@
 import style from './enouvo-train.scss';
 import { EnouvoTrain } from './EnouvoTrain';
-var styleMap = [
-  {
-    featureType: 'poi',
-    stylers: [
-      {
-        visibility: 'off'
-      }
-    ]
-  }
-];
 
 function initialize() {
-  if (typeof google === 'undefined') {
-    console.warn('Google Maps is not defined!');
-    return;
-  }
-
-  var mapLatLng = new google.maps.LatLng(-31.9546781, 115.852662);
+  var map = document.getElementById('map');
   var mapOptions = {
-    zoom: 14,
-    center: mapLatLng,
-    disableDefaultUI: true,
-    styles: styleMap
+    latLng: { lat: -31.9546781, lng: 115.852662 },
+    element: map
   };
-
-  var map = new google.maps.Map(document.getElementById('map'), mapOptions);
-  map.setOptions({ styles: styleMap });
 
   const eventsMap = {
     human_train: function(message) {
@@ -40,7 +20,7 @@ function initialize() {
     }
   };
 
-  var enouvoTrain = new EnouvoTrain({ map: map, events: eventsMap });
+  var enouvoTrain = new EnouvoTrain(mapOptions, { events: eventsMap });
 
   const dataTrains = [
     {

@@ -1,25 +1,44 @@
 import { TrainAsset, StationAsset, RouteAsset } from './assets';
 import { ControlLayer, ZoomControl, GroupControl } from './layers';
-import { EventEmitter } from './libs/EventEmitter';
+import { EventEmitter, GOOGLE_MAP_API } from './libs';
 
-const GOOGLE_MAP_API = google.maps;
-var polyLineColor = '#949c30';
-var polyLineWeight = 7;
-var polyLineStrokeOpacity = 1;
-
-// complete network with selected line
-var lineAndNetworkLineColor = '#d01a6c';
-var lineAndNetworkLineWeight = 10;
-var lineAndNetworkLineStrokeOpacity = 0.5;
+const styleGoogleMap = {
+  map: [
+    {
+      featureType: 'poi',
+      stylers: [
+        {
+          visibility: 'off'
+        }
+      ]
+    }
+  ],
+  polyline: {
+    polyLineColor: '#949c30',
+    polyLineWeight: 7,
+    polyLineStrokeOpacity: 1,
+    lineAndNetworkLineColor: '#d01a6c',
+    lineAndNetworkLineWeight: 10,
+    lineAndNetworkLineStrokeOpacity: 0.5
+  }
+};
 
 export class EnouvoTrain {
-  constructor(args) {
-    if (!args.map) {
-      throw new Error('Google map not exist');
-    }
+  constructor(mapOptions, args) {
+    const mapLatLng = new GOOGLE_MAP_API.LatLng(
+      mapOptions.latLng.lat,
+      mapOptions.latLng.lng
+    );
 
+    const _mapOptions = {
+      center: mapLatLng,
+      zoom: mapOptions.zoom || 14,
+      disableDefaultUI: true,
+      styles: styleGoogleMap.map
+    };
+
+    this._map = new GOOGLE_MAP_API.Map(mapOptions.element, _mapOptions);
     this._prefix_event = 'human_';
-    this._map = args.map;
     this._events = args.events;
     this._poolLines = [];
     this._poolTrains = [];

@@ -13,9 +13,8 @@ export class BaseTooltip extends GOOGLE_MAP_API.OverlayView {
       panOnOpen: true
     };
 
-    // Private properties
     this._html = null;
-    this._opts = { ..._defaultOptions, ...opts };
+    this._opts = Object.assign(_defaultOptions, opts);
     this._callbacks = this._opts.callbacks || {};
     this._marker = this._opts.marker;
     this._map = this._opts.map;
@@ -202,11 +201,15 @@ export class BaseTooltip extends GOOGLE_MAP_API.OverlayView {
 
     if (this._opts.closeWhenOthersOpen) {
       this.trackListener(
-        GOOGLE_MAP_API.event.addListener(map, `${_eventPrefix}opened`, other => {
-          if (this !== other) {
-            this.close();
+        GOOGLE_MAP_API.event.addListener(
+          map,
+          `${_eventPrefix}opened`,
+          other => {
+            if (this !== other) {
+              this.close();
+            }
           }
-        })
+        )
       );
     }
 
@@ -232,9 +235,13 @@ export class BaseTooltip extends GOOGLE_MAP_API.OverlayView {
     // Marker moves
     if (this._marker) {
       this.trackListener(
-        GOOGLE_MAP_API.event.addListener(this._marker, 'position_changed', () => {
-          this.draw();
-        })
+        GOOGLE_MAP_API.event.addListener(
+          this._marker,
+          'position_changed',
+          () => {
+            this.draw();
+          }
+        )
       );
     }
 
@@ -261,12 +268,16 @@ export class BaseTooltip extends GOOGLE_MAP_API.OverlayView {
     ];
     mouseEvents.forEach(event => {
       this.trackListener(
-        GOOGLE_MAP_API.event.addDomListener(this._html.floatWrapper, event, e => {
-          e.cancelBubble = true;
-          if (e.stopPropagation) {
-            e.stopPropagation();
+        GOOGLE_MAP_API.event.addDomListener(
+          this._html.floatWrapper,
+          event,
+          e => {
+            e.cancelBubble = true;
+            if (e.stopPropagation) {
+              e.stopPropagation();
+            }
           }
-        })
+        )
       );
     });
 
