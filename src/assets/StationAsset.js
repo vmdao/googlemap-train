@@ -9,14 +9,14 @@ export class StationAsset extends BaseAsset {
     this.assetCanSelect = false;
     this.assetSelected = false;
     this._zIndex = 10;
-    this.html = getHTMLStationIcon(this.properties);
+    this.html = getHTMLStationIcon(this._properties);
   }
 
   _addEventsDom() {
     this._html.content.addEventListener('click', event => {
       this._trigger('click', {
         event: 'clicked',
-        data: { type: 'station', value: this.properties }
+        data: { type: 'station', value: this._properties }
       });
     });
 

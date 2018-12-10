@@ -6,8 +6,22 @@
     <title>Enouvo Train Google Map</title>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
 </head>
+<style>
+    .controls {
+        position: absolute;
+        right: 30px;
+        top: 30px;
+        z-index: 1000000;
+    }
+</style>
 
 <body>
+    <div class="controls">
+        <button id="btn_train">Click Train</button>
+        <button id="btn_trains">Click Trains</button>
+        <button id="btn_station">Click Station</button>
+        <button id="btn_line">Click Line</button>
+    </div>
     <div id="map">
     </div>
 </body>

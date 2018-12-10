@@ -40,12 +40,13 @@ function initialize() {
     }
   };
 
-  const enouvoTrain = new EnouvoTrain({ map: map, events: eventsMap });
+  var enouvoTrain = new EnouvoTrain({ map: map, events: eventsMap });
 
   const dataTrains = [
     {
       latlng: { lat: -31.9546781, lng: 115.852662 },
       data: {
+        tdn: 'ABC123',
         name: 'ABC123',
         list: [{ name: 'TrainNo', value: 'ABC123' }]
       }
@@ -53,8 +54,17 @@ function initialize() {
     {
       latlng: { lat: -31.9546781, lng: 115.856662 },
       data: {
+        tdn: 'ABC456',
         name: 'ABC456',
         list: [{ name: 'TrainNo', value: 'ABC456' }]
+      }
+    },
+    {
+      latlng: { lat: -31.9566781, lng: 115.856662 },
+      data: {
+        tdn: 'ABC098',
+        name: 'ABC098',
+        list: [{ name: 'TrainNo', value: 'ABC098' }]
       }
     }
   ];
@@ -76,9 +86,16 @@ function initialize() {
 
   const dataLines = [{ data: { abc: 123 } }];
 
-  enouvoTrain.createTrainsInit(dataTrains);
-  enouvoTrain.createStationsInit(dataStaions);
   enouvoTrain.createLinesInit(dataLines);
+  enouvoTrain.createStationsInit(dataStaions);
+  enouvoTrain.createTrainsInit(dataTrains);
+
+  document.getElementById('btn_train').addEventListener('click', function() {
+    enouvoTrain.humanSelectTrains('ABC123');
+  });
+  document.getElementById('btn_trains').addEventListener('click', function() {
+    enouvoTrain.humanSelectTrains(['ABC123', 'ABC098']);
+  });
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);

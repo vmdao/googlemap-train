@@ -39,10 +39,19 @@ export class ZoomControl extends BaseControl {
     this._html.wrapper.appendChild(this._html.content);
 
     buttonZoomInDiv.addEventListener('click', () => {
-      this._trigger('click', { event: 'clicked', data: 'ZOOM_IN' });
+      this._trigger('click', {
+        event: 'clicked',
+        value: true,
+        data: 'ZOOM_IN'
+      });
     });
+
     buttonZoomOutDiv.addEventListener('click', () => {
-      this._trigger('click', { event: 'clicked', data: 'ZOOM_OUT' });
+      this._trigger('click', {
+        event: 'clicked',
+        value: true,
+        data: 'ZOOM_OUT'
+      });
     });
   }
 }

@@ -1,8 +1,7 @@
 export { BaseAsset } from './BaseAsset';
 export { TrainAsset } from './TrainAsset';
 export { StationAsset } from './StationAsset';
-
-export { Tooltip } from './Tooltip';
-export { TrainTooltip } from './TrainTooltip';
-export { InfoWindow } from './InfoWindow';
 export { RouteAsset } from './RouteAsset';
+
+export { TrainTooltip } from './TrainTooltip';
+export { BaseTooltip } from './BaseTooltip';

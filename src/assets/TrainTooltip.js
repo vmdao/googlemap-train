@@ -1,6 +1,6 @@
-import { InfoWindow } from './InfoWindow';
+import { BaseTooltip } from './BaseTooltip';
 
-export class TrainTooltip extends InfoWindow {
+export class TrainTooltip extends BaseTooltip {
   constructor(args) {
     super(args);
 

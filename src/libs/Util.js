@@ -1,3 +1,5 @@
+export const GOOGLE_MAP_API = google.maps;
+
 export function hasClass(elem, className) {
   return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
 }
@@ -42,4 +44,31 @@ export function getNewElement(args) {
     }
   }
   return element;
+}
+
+export function setHTML(container, content) {
+  if (container) {
+    // Clear out everything in the container
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+    if (content) {
+      if (typeof content === 'string') {
+        container.innerHTML = content;
+      } else {
+        container.appendChild(content);
+      }
+    }
+  }
+}
+
+export function toLatLng(v) {
+  if (v !== undefined && v !== null) {
+    if (v instanceof GOOGLE_MAP_API.LatLng) {
+      return v;
+    } else if (v.lat !== undefined && v.lng !== undefined) {
+      return new GOOGLE_MAP_API.LatLng(v);
+    }
+  }
+  return null;
 }

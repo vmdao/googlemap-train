@@ -8,7 +8,7 @@ function getHTML(data, options) {
   const arrowHtml =
     (options &&
       options.angle &&
-      '<div class="train-asset-arrow arrow-es"><div class="train-arrow"><div class="train-arrow-after"></div></div></div>') ||
+      '<div class="train-asset-or-arrow arrow-es"><div class="train-asset-or-arrow-inner"></div></div>') ||
     '';
 
   const html =

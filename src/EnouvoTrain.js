@@ -2,6 +2,7 @@ import { TrainAsset, StationAsset, RouteAsset } from './assets';
 import { ControlLayer, ZoomControl, GroupControl } from './layers';
 import { EventEmitter } from './libs/EventEmitter';
 
+const GOOGLE_MAP_API = google.maps;
 var polyLineColor = '#949c30';
 var polyLineWeight = 6;
 var polyLineStrokeOpacity = 1;
@@ -16,6 +17,7 @@ export class EnouvoTrain {
     if (!args.map) {
       throw new Error('Google map not exist');
     }
+
     this._prefix_event = 'human_';
     this._map = args.map;
     this._events = args.events;
@@ -30,9 +32,11 @@ export class EnouvoTrain {
   humanSelectTrains(dataTrains) {
     const selectedTrains = this._filterTrains(dataTrains);
     if (selectedTrains.length) {
-      selectedTrains.forEach(train => {
+      const lonlngs = selectedTrains.map(train => {
         train.doSelect();
+        return train.getPosition();
       });
+      this._focus(lonlngs);
     }
   }
 
@@ -75,7 +79,7 @@ export class EnouvoTrain {
       throw new Error('Station latlng not exist');
     }
 
-    const latlng = new google.maps.LatLng(dataLatlng.lat, dataLatlng.lng);
+    const latlng = new GOOGLE_MAP_API.LatLng(dataLatlng.lat, dataLatlng.lng);
 
     const train = new TrainAsset({
       map: this._map,
@@ -101,7 +105,6 @@ export class EnouvoTrain {
   createStationsInit(newDataStations) {
     this._destroyStations(this._poolStations);
     this._poolStations = this.createStations(newDataStations);
-    console.log(this, newDataStations);
   }
 
   createStations(newDataStations) {
@@ -122,7 +125,7 @@ export class EnouvoTrain {
       throw new Error('Station latlng not exist');
     }
 
-    const latlng = new google.maps.LatLng(dataLatlng.lat, dataLatlng.lng);
+    const latlng = new GOOGLE_MAP_API.LatLng(dataLatlng.lat, dataLatlng.lng);
 
     const station = new StationAsset({
       map: this._map,
@@ -181,14 +184,21 @@ export class EnouvoTrain {
 
   _findTrain(dataTrain) {
     return this._poolTrains.find(train => {
-      return (train.data.tdn = dataTrain.tdn);
+      const data = train.getData();
+      return data.tdn === dataTrain;
     });
   }
 
   _filterTrains(dataTrains) {
-    return dataTrains.filter(dataTrain => {
-      return this._findTrain(dataTrain);
-    });
+    if (!Array.isArray(dataTrains)) {
+      const train = this._findTrain(dataTrains);
+      return train ? [train] : [];
+    } else {
+      return this._poolTrains.filter(train => {
+        const data = train.getData();
+        return dataTrains.find(dataTrain => dataTrain === data.tdn);
+      });
+    }
   }
 
   _findStation(dataStation) {
@@ -198,9 +208,15 @@ export class EnouvoTrain {
   }
 
   _filterStations(dataStations) {
-    return dataStations.filter(dataStation => {
-      return this._findStation(dataStation);
-    });
+    if (!Array.isArray(dataStations)) {
+      const station = this._findStation(dataStations);
+      return station ? [station] : [];
+    } else {
+      return this._poolStations.filter(station => {
+        const data = station.getData();
+        return dataStations.find(dataStation => dataStation === data.id);
+      });
+    }
   }
 
   _findLine(dataLine) {
@@ -210,9 +226,15 @@ export class EnouvoTrain {
   }
 
   _filterLines(dataLines) {
-    return dataLines.filter(dataLine => {
-      return this._findLine(dataLine);
-    });
+    if (!Array.isArray(dataLines)) {
+      const line = this._findStation(dataLines);
+      return line ? [line] : [];
+    } else {
+      return this._poolLines.filter(line => {
+        const data = line.getData();
+        return dataLines.find(dataLine => dataLine === data.id);
+      });
+    }
   }
 
   _destroyTrains(trains) {
@@ -270,18 +292,17 @@ export class EnouvoTrain {
   _setupControlLayer() {
     const groupControlEvents = {
       control_group_click: message => {
-        const { event, data } = message;
-        const { type, value } = data;
+        const { event, value, data } = message;
         if (event === 'clicked') {
-          if (type === 'GROUP_TRAIN') {
+          if (data === 'GROUP_TRAIN') {
             this._poolTrains.forEach(train => {
               value ? train.show() : train.hide();
             });
-          } else if (type === 'GROUP_STATION') {
+          } else if (data === 'GROUP_STATION') {
             this._poolStations.forEach(train => {
               value ? train.show() : train.hide();
             });
-          } else if (type === 'GROUP_LINE') {
+          } else if (data === 'GROUP_LINE') {
             this._poolLines.forEach(train => {
               value ? train.show() : train.hide();
             });
@@ -318,5 +339,18 @@ export class EnouvoTrain {
     controlLayer.addControl(zoomControl);
 
     controlLayer.addTo(this._map);
+  }
+
+  _focus(latlngs) {
+    if (latlngs.length === 1) {
+      this._map.panTo(latlngs[0]);
+      return;
+    }
+    const bounds = latlngs.reduce((current, latlng) => {
+      current.extend(latlng);
+      return current;
+    }, new GOOGLE_MAP_API.LatLngBounds());
+
+    this._map.panToBounds(bounds, 100);
   }
 }

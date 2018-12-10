@@ -1,13 +1,12 @@
-import { EventEmitter } from '../libs/EventEmitter';
+import { GOOGLE_MAP_API } from '../libs';
 
-export class RouteAsset extends google.maps.Polyline {
+export class RouteAsset extends GOOGLE_MAP_API.Polyline {
   constructor(args) {
     super(args);
     this._prefix_event = 'line_asset_';
-
-    this._map = args.map;
-    this.properties = args.properties;
     this.options = args.options;
+    this._map = args.map;
+    this._properties = args.properties;
     this._hide = args.hide || false;
     this._observers = args.observers || null;
     this._events = args.events || [];
@@ -30,6 +29,10 @@ export class RouteAsset extends google.maps.Polyline {
   show() {
     this._hide = false;
     this.setVisible(!this._hide);
+  }
+
+  getData() {
+    return this._properties;
   }
 
   doSelect() {
@@ -58,7 +61,7 @@ export class RouteAsset extends google.maps.Polyline {
     this.addListener('click', () => {
       this._trigger('click', {
         event: 'clicked',
-        data: { type: 'line', value: this.properties }
+        data: { type: 'line', value: this._properties }
       });
     });
   }

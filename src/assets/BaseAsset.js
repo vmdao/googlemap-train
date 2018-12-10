@@ -1,6 +1,6 @@
-import { getNewElement } from '../libs';
+import { getNewElement, GOOGLE_MAP_API } from '../libs';
 
-export class BaseAsset extends google.maps.OverlayView {
+export class BaseAsset extends GOOGLE_MAP_API.OverlayView {
   constructor(args) {
     super();
     this._prefix_event = 'asset_';
@@ -11,7 +11,7 @@ export class BaseAsset extends google.maps.OverlayView {
     this._hide = args.hide || false;
     this._zIndex = 1;
     this.html = args.html;
-    this.properties = args.properties;
+    this._properties = args.properties;
 
     this.assetCanMove = false;
     this.assetCanSelect = false;
@@ -64,6 +64,10 @@ export class BaseAsset extends google.maps.OverlayView {
 
   _drawHide() {
     this._html.wrapper.style.visibility = this._hide ? 'hidden' : 'visible';
+  }
+
+  getData() {
+    return this._properties;
   }
 
   draw() {

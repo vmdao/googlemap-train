@@ -51,7 +51,8 @@ export class GroupControl extends BaseControl {
       this.trainSelected = !this.trainSelected;
       this._trigger('click', {
         event: 'clicked',
-        data: { type: 'GROUP_TRAIN', value: this.trainSelected }
+        value: this.trainSelected,
+        data: 'GROUP_TRAIN'
       });
       this._onSelect(buttonTrainDiv, this.trainSelected);
     });
@@ -60,7 +61,8 @@ export class GroupControl extends BaseControl {
       this.stationSelected = !this.stationSelected;
       this._trigger('click', {
         event: 'clicked',
-        data: { type: 'GROUP_STATION', value: this.stationSelected }
+        value: this.stationSelected,
+        data: 'GROUP_STATION'
       });
       this._onSelect(buttonStationDiv, this.stationSelected);
     });
@@ -69,7 +71,8 @@ export class GroupControl extends BaseControl {
       this.lineSelected = !this.lineSelected;
       this._trigger('click', {
         event: 'clicked',
-        data: { type: 'GROUP_LINE', value: this.lineSelected }
+        value: this.lineSelected,
+        data: 'GROUP_LINE'
       });
       this._onSelect(buttonLineDiv, this.lineSelected);
     });

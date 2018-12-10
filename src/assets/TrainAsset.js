@@ -12,7 +12,7 @@ export class TrainAsset extends BaseAsset {
     this.assetSelected = false;
     this._zIndex = 100;
 
-    this.html = getHTMLTrainIcon(this.properties, { angle: 20 });
+    this.html = getHTMLTrainIcon(this._properties, { angle: 20 });
 
     this._createTooltip();
   }
@@ -22,22 +22,35 @@ export class TrainAsset extends BaseAsset {
       this._toggleSelected();
       this._trigger('click', {
         event: 'clicked',
-        data: { type: 'train', value: this.properties }
+        value: true,
+        data: this._properties
       });
     });
 
     this._html.content.addEventListener('mouseenter', () => {
       this._openTooltip();
+      this._onHoverChangeTemplate();
+      this._trigger('hover', {
+        event: 'hover',
+        value: true,
+        data: this._properties
+      });
     });
     this._html.content.addEventListener('mouseout', () => {
       this._closeTooltip();
+      this._onDehoverChangeTemplate();
+      this._trigger('hover', {
+        event: 'hover',
+        value: false,
+        data: this._properties
+      });
     });
   }
 
   _createTooltip() {
     this.tooltip = new TrainTooltip({
       marker: this,
-      properties: this.properties
+      properties: this._properties
     });
   }
 
@@ -47,6 +60,14 @@ export class TrainAsset extends BaseAsset {
 
   _closeTooltip() {
     this.tooltip.close();
+  }
+
+  _onHoverChangeTemplate() {
+    addClass(this._html.content, 'train-asset-hover');
+  }
+
+  _onDehoverChangeTemplate() {
+    removeClass(this._html.content, 'train-asset-hover');
   }
 
   _onSelectedChangeTemplate() {

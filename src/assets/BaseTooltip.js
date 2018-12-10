@@ -1,39 +1,11 @@
 // Set the html of a container. Should support both raw text and a single
 // DOM Element.
-function setHTML(container, content) {
-  if (container) {
-    // Clear out everything in the container
-    while (container.firstChild) {
-      container.removeChild(container.firstChild);
-    }
-    if (content) {
-      if (typeof content === 'string') {
-        container.innerHTML = content;
-      } else {
-        container.appendChild(content);
-      }
-    }
-  }
-}
+import { toLatLng, setHTML, GOOGLE_MAP_API } from '../libs';
 
-// Convert the value into a Google Map LatLng
-function toLatLng(v) {
-  if (v !== undefined && v !== null) {
-    if (v instanceof google.maps.LatLng) {
-      return v;
-    } else if (v.lat !== undefined && v.lng !== undefined) {
-      return new google.maps.LatLng(v);
-    }
-  }
-  return null;
-}
-
-const _eventPrefix = 'enouvo-trains-event';
-
-export class InfoWindow extends google.maps.OverlayView {
+export class BaseTooltip extends GOOGLE_MAP_API.OverlayView {
   constructor(opts) {
     super(opts);
-
+    this._eventPrefix = 'enouvo-trains-event';
     const _defaultOptions = {
       openOnMarkerClick: true,
       closeOnMapClick: true,
@@ -53,7 +25,7 @@ export class InfoWindow extends google.maps.OverlayView {
     // This listener remains active when the info window is closed.
     if (this._marker && this._opts.openOnMarkerClick) {
       this.trackListener(
-        google.maps.event.addListener(this._marker, 'click', () => {
+        GOOGLE_MAP_API.event.addListener(this._marker, 'click', () => {
           if (!this.getMap()) {
             this.open();
           }
@@ -88,7 +60,7 @@ export class InfoWindow extends google.maps.OverlayView {
     if (this._listeners) {
       this._listeners.forEach(e => {
         if (clearPersistent || !e.persistent) {
-          google.maps.event.removeListener(e.listener);
+          GOOGLE_MAP_API.event.removeListener(e.listener);
           e.listener = null;
         }
       });
@@ -175,7 +147,11 @@ export class InfoWindow extends google.maps.OverlayView {
       this.resize();
       this.reposition();
       this.activateCallback('afterOpen');
-      google.maps.event.trigger(this.getMap(), `${_eventPrefix}opened`, this);
+      GOOGLE_MAP_API.event.trigger(
+        this.getMap(),
+        `${this._eventPrefix}opened`,
+        this
+      );
     }
   }
 
@@ -218,7 +194,7 @@ export class InfoWindow extends google.maps.OverlayView {
     this.clearListeners();
     if (this._opts.closeOnMapClick) {
       this.trackListener(
-        google.maps.event.addListener(map, 'click', () => {
+        GOOGLE_MAP_API.event.addListener(map, 'click', () => {
           this.close();
         })
       );
@@ -226,7 +202,7 @@ export class InfoWindow extends google.maps.OverlayView {
 
     if (this._opts.closeWhenOthersOpen) {
       this.trackListener(
-        google.maps.event.addListener(map, `${_eventPrefix}opened`, other => {
+        GOOGLE_MAP_API.event.addListener(map, `${_eventPrefix}opened`, other => {
           if (this !== other) {
             this.close();
           }
@@ -239,7 +215,7 @@ export class InfoWindow extends google.maps.OverlayView {
     this._previousHeight = null;
 
     this.trackListener(
-      google.maps.event.addListener(map, 'bounds_changed', () => {
+      GOOGLE_MAP_API.event.addListener(map, 'bounds_changed', () => {
         const d = map.getDiv();
         const ow = d.offsetWidth;
         const oh = d.offsetHeight;
@@ -256,7 +232,7 @@ export class InfoWindow extends google.maps.OverlayView {
     // Marker moves
     if (this._marker) {
       this.trackListener(
-        google.maps.event.addListener(this._marker, 'position_changed', () => {
+        GOOGLE_MAP_API.event.addListener(this._marker, 'position_changed', () => {
           this.draw();
         })
       );
@@ -285,7 +261,7 @@ export class InfoWindow extends google.maps.OverlayView {
     ];
     mouseEvents.forEach(event => {
       this.trackListener(
-        google.maps.event.addDomListener(this._html.floatWrapper, event, e => {
+        GOOGLE_MAP_API.event.addDomListener(this._html.floatWrapper, event, e => {
           e.cancelBubble = true;
           if (e.stopPropagation) {
             e.stopPropagation();
